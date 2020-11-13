@@ -8,6 +8,6 @@ package object hacker_news {
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val serverHost = "localhost"
-
   val port = 8090
+
 }
