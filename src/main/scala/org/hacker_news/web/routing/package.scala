@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.ExceptionHandler
 import org.hacker_news.data.contract.exceptions.PostNotFoundException
 
 package object routing {
-  val anomalyDetectionExceptionHandler = ExceptionHandler {
+  val hackerNewsExceptionHandler = ExceptionHandler {
     case ex: PostNotFoundException =>
       extractUri { uri =>
         complete(HttpResponse(NotFound))
