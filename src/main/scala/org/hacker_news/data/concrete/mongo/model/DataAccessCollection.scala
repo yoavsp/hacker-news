@@ -18,5 +18,4 @@ trait DataAccessCollection {
   protected val postDB: MongoDatabase = mongoClient.getDatabase("posts")
   val codecRegistry = fromRegistries(fromProviders(classOf[DataAccessPost]), DEFAULT_CODEC_REGISTRY)
   protected val postsCollection: MongoCollection[DataAccessPost] = postDB.getCollection[DataAccessPost]("posts").withCodecRegistry(codecRegistry)
-
 }
