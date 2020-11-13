@@ -1,5 +1,20 @@
 version: "3"
 services:
+  hn-service:
+    build:
+      context: ./target/docker/stage
+    container_name: hacker-news
+    ports:
+      - 8095:8090
+    environment:
+      MONGO_HOST: mongo1
+#    links:
+#      - mongo1
+    depends_on:
+      - mongo1
+    networks:
+      - mongo
+
   mongo1:
     hostname: mongo1
     container_name: localmongo1
@@ -9,24 +24,9 @@ services:
     ports:
       - 27011:27017
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
-  mongo2:
-    hostname: mongo2
-    container_name: localmongo2
-    image: mongo:4.0-xenial
-    expose:
-      - 27017
-    ports:
-      - 27012:27017
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
-  mongo3:
-    hostname: mongo3
-    container_name: localmongo3
-    image: mongo:4.0-xenial
-    expose:
-      - 27017
-    ports:
-      - 27013:27017
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    networks:
+      - mongo
+    #entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+networks:
+  mongo:
+    driver: bridge

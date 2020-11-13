@@ -7,6 +7,8 @@ scalaVersion := "2.13.3"
 val akkaHttpVersion = "10.1.12"
 val akkaVersion = "2.5.30"
 
+enablePlugins(JavaAppPackaging)
+
 libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,
   "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion,

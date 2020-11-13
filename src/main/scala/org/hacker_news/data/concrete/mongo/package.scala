@@ -1,16 +1,16 @@
 package org.hacker_news.data.concrete
 
-import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
+import java.time.{Instant, ZoneId, ZonedDateTime}
 
-import org.bson.{BsonReader, BsonWriter}
-import org.bson.codecs.{Codec, DecoderContext, EncoderContext}
+import com.typesafe.config.ConfigFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.hacker_news.data.concrete.mongo.model.DataAccessPost
+import org.hacker_news.data.contract.exceptions.PostNotFoundException
 import org.hacker_news.domain.entities.Post
-import org.mongodb.scala.bson.{BsonInt32, BsonInt64, BsonObjectId, BsonString}
+import org.mongodb.scala.SingleObservable
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model.Filters
-import org.mongodb.scala.model.Updates.{combine, set}
+
+import scala.concurrent.{ExecutionContext, Future}
 
 package object mongo {
   implicit class PostHelper(post: Post){
@@ -30,14 +30,37 @@ package object mongo {
       dap.votes)
   }
 
-  class SomeCodec extends Codec[Some[String]] {
-    override def decode(reader: BsonReader, decoderContext: DecoderContext): Some[String] = Some(reader.readString())
-
-    override def encode(writer: BsonWriter, value: Some[String], encoderContext: EncoderContext): Unit = value match{
-      case Some(v) => writer.writeString(v)
-      case _ =>
+  implicit class LoggingSingleObservable[T <: {def wasAcknowledged(): Boolean}](observable: SingleObservable[T])(implicit ec: ExecutionContext) extends LazyLogging {
+    def toLoggedFuture(action: String = "unknown"): Future[T] = {
+      observable.toFuture().map(res => {
+        if (!res.wasAcknowledged)
+          logger.warn(s"$action action was not acknowledged")
+            res}).recover {
+        case up: Throwable =>  {
+          logger.error(s"$action action failed with exception: $up")
+          throw up
+        }
+      }
     }
+  }
 
-    override def getEncoderClass: Class[Some[String]] = classOf[Some[String]]
+  implicit class LoggingSingleObservableOf[T](observable: SingleObservable[T])(implicit ec: ExecutionContext) extends LazyLogging {
+    def toLoggedFuture[B](id: String, action: String = "unknown"): Future[T] = {
+      observable.toFuture().map(res => {
+        if (res == null)
+          throw PostNotFoundException(id)
+        res}).recover {
+        case up: Throwable =>  {
+          logger.error(s"$action action failed with exception: $up")
+          throw up
+        }
+      }
+    }
+  }
+
+
+  object Configuration extends LazyLogging{
+    lazy private val config = ConfigFactory.load()
+    val mongoHost = config.getString("mongodb.host.url")
   }
 }

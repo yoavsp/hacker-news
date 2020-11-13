@@ -25,14 +25,16 @@ trait PostRouting extends Directives with MarshallingDirectives with PostJsonFor
             complete(postService.create(post))
           }
 
-      } ~ pathPrefix(PathMatchers.Segment) { postId =>
-          patch {
+      } ~ handleExceptions(anomalyDetectionExceptionHandler) {
+          pathPrefix(PathMatchers.Segment) { postId =>
+            patch {
 
               entity(as[UpdatedPostDTO]) { post =>
-                complete(postService.update(postId.toString, post))
+                complete(postService.update(postId, post))
               }
             }
           }
+        }
 
     }
 
