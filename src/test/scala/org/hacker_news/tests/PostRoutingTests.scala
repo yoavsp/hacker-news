@@ -1,5 +1,6 @@
 package org.hacker_news.tests
 
+import java.time.ZonedDateTime
 import java.util.UUID
 
 import akka.http.scaladsl.model.{ContentType, ContentTypes, HttpEntity}
@@ -7,9 +8,10 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.hacker_news.data.contract.PostRepository
 import org.hacker_news.domain.concrete.PostServiceImpl
 import org.hacker_news.domain.contarct.PostService
-import org.hacker_news.domain.entities.Post
-import org.hacker_news.dto.{NewPostDTO, PostDTO}
+import org.hacker_news.domain.entities.{Post => HNPost}
+import org.hacker_news.dto.{NewPostDTO, PostDTO, UpdatedPostDTO}
 import org.hacker_news.web.routing.PostRouting
+
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import akka.http.scaladsl.model.StatusCodes
@@ -50,17 +52,47 @@ class PostRoutingTests
   override implicit def executionContext: ExecutionContext = this.executionContext
 
   val mockRepository = mock(classOf[PostRepository])
-  when(mockRepository.create(any[Post])) thenAnswer { invocation =>
-    val post = invocation.getArgument[Post](0)
-    Future.successful(post)
-  }
   override val postService: PostService = new PostServiceImpl(mockRepository)
 
   "PostRouting" should {
     "create post" in {
+      when(mockRepository.create(any[HNPost])) thenAnswer { invocation =>
+        val post = invocation.getArgument[HNPost](0)
+        Future.successful(post.copy(id=Some("id")))
+      }
       val newPost = NewPostDTO(UUID.randomUUID().toString, "body")
       Post("/api/v1/post", entity = HttpEntity(ContentTypes.`application/json`, newPost.toJson.prettyPrint)) ~>
         postRoutes ~> check(responseAs[PostDTO].title shouldEqual newPost.title)
+    }
+
+    "update post" in {
+      val id = UUID.randomUUID().toString
+      val updatedPost = UpdatedPostDTO(Some("new title"), Some("new body"))
+      val post = HNPost(Some(id), updatedPost.title.get, updatedPost.text.get, 0, ZonedDateTime.now, 0)
+
+      when(mockRepository.update(anyString, any[Option[String]], any[Option[String]])) thenAnswer { invocation =>
+        Future.successful(post)
+      }
+      Patch(s"/api/v1/post/$id", entity = HttpEntity(ContentTypes.`application/json`, updatedPost.toJson.prettyPrint)) ~>
+        postRoutes ~> check{
+        responseAs[PostDTO].title shouldEqual updatedPost.title.get
+        responseAs[PostDTO].text shouldEqual updatedPost.text.get
+      }
+    }
+
+    "partially update post" in {
+      val id = UUID.randomUUID().toString
+      val updatedPost = UpdatedPostDTO(Some("new title"), None)
+      val post = HNPost(Some(id), updatedPost.title.get, "some old text", 0, ZonedDateTime.now, 0)
+
+      when(mockRepository.update(anyString, any[Option[String]], any[Option[String]])) thenAnswer { invocation =>
+        Future.successful(post)
+      }
+      Patch(s"/api/v1/post/$id", entity = HttpEntity(ContentTypes.`application/json`, updatedPost.toJson.prettyPrint)) ~>
+        postRoutes ~> check{
+        responseAs[PostDTO].title shouldEqual updatedPost.title.get
+
+      }
     }
 
 
