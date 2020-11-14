@@ -1,6 +1,7 @@
 version: "3"
 services:
   hn-service:
+    #image: hacker_news_hn-service:latest
     build:
       context: ./target/docker/stage
     container_name: hacker-news
@@ -10,8 +11,6 @@ services:
       MONGO_HOST: mongo1
       VOTE_WEIGHT: 1
       CREATION_TIME_WEIGHT: 1
-#    links:
-#      - mongo1
     depends_on:
       - mongo1
     networks:
@@ -28,7 +27,6 @@ services:
     restart: always
     networks:
       - mongo
-    #entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
 networks:
   mongo:
     driver: bridge

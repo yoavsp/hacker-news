@@ -14,7 +14,7 @@ class SystemTests extends AsyncFlatSpec with Matchers with PostJsonFormats with 
       _ <- postDB.drop().toFuture()
       responses <- Future.sequence((1 to postCount).map(_ =>createPost))
       documentCount <- postsCollection.countDocuments().toFuture()
-    } yield documentCount) map{count =>
+    } yield documentCount) map{ count =>
       count shouldEqual postCount
     }
   }
