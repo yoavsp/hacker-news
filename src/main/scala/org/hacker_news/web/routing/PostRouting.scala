@@ -7,7 +7,7 @@ import org.hacker_news.domain.contarct.PostService
 import org.hacker_news.domain.entities.Post
 import org.hacker_news.dto.{NewPostDTO, UpdatedPostDTO}
 import org.hacker_news.web.serialization.PostJsonFormats
-
+import scala.language.postfixOps
 import scala.concurrent.ExecutionContext
 
 
@@ -43,8 +43,10 @@ trait PostRouting extends Directives with MarshallingDirectives with PostJsonFor
               }
             }
           }
-        } ~ get {
-          complete(postService.getTopVotes(100))
+        } ~ get { parameter("count".as[Int]?){ count =>
+
+          complete(postService.getTopVotes(count.getOrElse(100)))
+        }
         }
 
     }
