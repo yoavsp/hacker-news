@@ -68,11 +68,12 @@ class PostRoutingTests
     "update post" in {
       val id = UUID.randomUUID().toString
       val updatedPost = UpdatedPostDTO(Some("new title"), Some("new body"))
-      val post = HNPost(Some(id), updatedPost.title.get, updatedPost.text.get, 0, ZonedDateTime.now, 0)
+      val post = HNPost(Some(id), updatedPost.title.get, updatedPost.text.get, ZonedDateTime.now, 0)
 
       when(mockPostRepository.update(anyString, any[Option[String]], any[Option[String]])) thenAnswer { invocation =>
         Future.successful(post)
       }
+
       Patch(s"/api/v1/post/$id", entity = HttpEntity(ContentTypes.`application/json`, updatedPost.toJson.prettyPrint)) ~>
         postRoutes ~> check{
         responseAs[PostDTO].title shouldEqual updatedPost.title.get
@@ -83,7 +84,7 @@ class PostRoutingTests
     "partially update post" in {
       val id = UUID.randomUUID().toString
       val updatedPost = UpdatedPostDTO(Some("new title"), None)
-      val post = HNPost(Some(id), updatedPost.title.get, "some old text", 0, ZonedDateTime.now, 0)
+      val post = HNPost(Some(id), updatedPost.title.get, "some old text", ZonedDateTime.now, 0)
 
       when(mockPostRepository.update(anyString, any[Option[String]], any[Option[String]])) thenAnswer { invocation =>
         Future.successful(post)

@@ -6,7 +6,7 @@ import org.hacker_news.domain.entities.Post
 
 package object dto {
   implicit class NewPostDTOHelper(postDTO: NewPostDTO){
-    def toEntity: Post =  Post(id = None, title= postDTO.title, text = postDTO.text, 0)
+    def toEntity: Post =  Post(id = None, title= postDTO.title, text = postDTO.text)
   }
 
   implicit class PostHelper(post: Post){
