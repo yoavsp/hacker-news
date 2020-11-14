@@ -20,17 +20,16 @@ import scala.concurrent.{ExecutionContext, Future}
 package object mongo {
   implicit class PostHelper(post: Post){
     def toDocument: Document = {
-      Document("_id" -> post.id, "title" -> post.title, "text" -> post.text, "votes" -> post.votes, "createdAt" -> post.createdAt.toEpochSecond, "score" -> post.score)
+      Document("_id" -> post.id, "title" -> post.title, "text" -> post.text, "votes" -> post.votes, "createdAt" -> post.createdAt.toEpochSecond)
     }
 
-    def toDataAccess: DataAccessPost = DataAccessPost(post.title, post.text, (post.createdAt.toEpochSecond / 1440).toInt, post.createdAt.toEpochSecond, post.votes)
+    def toDataAccess: DataAccessPost = DataAccessPost(post.title, post.text, post.createdAt.toEpochSecond, post.votes)
     }
 
   implicit class DAPHelper(dap: DataAccessPost){
     def toEntity: Post = Post(Some(dap._id.toString),
       dap.title,
       dap.text,
-      dap.score,
       ZonedDateTime.ofInstant(Instant.ofEpochMilli(dap.createdAt), ZoneId.of("UTC")),
       dap.votes)
   }
