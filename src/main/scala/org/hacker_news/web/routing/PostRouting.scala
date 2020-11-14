@@ -43,6 +43,8 @@ trait PostRouting extends Directives with MarshallingDirectives with PostJsonFor
               }
             }
           }
+        } ~ get {
+          complete(postService.getTopVotes(100))
         }
 
     }

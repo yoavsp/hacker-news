@@ -1,9 +1,11 @@
-package org.hacker_news.domain.contarct
+package org.hacker_news.domain
+package contarct
 
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import org.hacker_news.data.contract.{PostRepository, VoteRepository}
 import org.hacker_news.domain.entities.Post
 import org.hacker_news.dto._
+import Configuration._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,5 +22,9 @@ trait PostService {
   def upvote(postId: String): Future[Int] = voteRepository.upvote(postId)
 
   def downvote(postId: String): Future[Int] = voteRepository.downvote(postId)
+
+  def getTopVotes(count: Int): Future[Seq[PostDTO]] = postRepository
+    .getTopPosts(creationTimeWeight, voteWeight, count)
+    .map(res => res.map(_.toDTO))
 
 }

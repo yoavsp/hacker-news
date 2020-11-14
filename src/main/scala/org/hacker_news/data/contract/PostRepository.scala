@@ -8,4 +8,6 @@ trait PostRepository {
   def create(post: Post): Future[Post]
 
   def update(id: String, titleOption: Option[String], textOption: Option[String]): Future[Post]
+
+  def getTopPosts(timeWeight: Float, votesWeight: Float, count: Int): Future[Seq[Post]]
 }

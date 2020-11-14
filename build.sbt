@@ -20,4 +20,5 @@ libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-http" % akkaHttpVersion
   ("org.mockito" %% "mockito-scala" % "1.14.2" exclude("org.scalactic", "*")) % Test,
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
-  "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test)
+  "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
+  "com.github.javafaker" % "javafaker" % "1.0.2" % Test)

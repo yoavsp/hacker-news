@@ -8,6 +8,8 @@ services:
       - 8095:8090
     environment:
       MONGO_HOST: mongo1
+      VOTE_WEIGHT: 1
+      CREATION_TIME_WEIGHT: 1
 #    links:
 #      - mongo1
     depends_on:

@@ -68,7 +68,7 @@ class PostRoutingTests
     "update post" in {
       val id = UUID.randomUUID().toString
       val updatedPost = UpdatedPostDTO(Some("new title"), Some("new body"))
-      val post = HNPost(Some(id), updatedPost.title.get, updatedPost.text.get, 0, ZonedDateTime.now, 0)
+      val post = HNPost(Some(id), updatedPost.title.get, updatedPost.text.get, ZonedDateTime.now)
 
       when(mockPostRepository.update(anyString, any[Option[String]], any[Option[String]])) thenAnswer { invocation =>
         Future.successful(post)
@@ -83,7 +83,7 @@ class PostRoutingTests
     "partially update post" in {
       val id = UUID.randomUUID().toString
       val updatedPost = UpdatedPostDTO(Some("new title"), None)
-      val post = HNPost(Some(id), updatedPost.title.get, "some old text", 0, ZonedDateTime.now, 0)
+      val post = HNPost(Some(id), updatedPost.title.get, "some old text", ZonedDateTime.now)
 
       when(mockPostRepository.update(anyString, any[Option[String]], any[Option[String]])) thenAnswer { invocation =>
         Future.successful(post)
